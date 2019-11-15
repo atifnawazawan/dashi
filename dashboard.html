@@ -1,0 +1,1337 @@
+<!--
+  Generated template for the DashboardPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+
+<ion-header class="header" *ngIf="activityTitle!='MyEvent'">
+    <ion-navbar hideBackButton >
+        <button *ngIf="restrict_activities==0" ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+
+        </button>
+		<span class="topbar"  *ngIf="activitiesBack" (click)="activityPageBack(activitiesBack)">
+		 {{activitiesBack[0].stage.title}}
+		
+		</span>
+		<span class="topbar"  *ngIf="toptitle" (click)="activityPageTop(toptitle)">
+		 {{toptitle.icon_name}}
+		
+		</span>
+		 <ion-label style="margin-top: 17px!important;float:right;margin-right:12px;" *ngIf="hasUserRedeem">
+                            <b>Redeemed</b>
+                        </ion-label>
+		  <ion-label style="margin-top: 17px!important;float:right;margin-right:12px;" *ngIf="!hasUserRedeem && showCompleted">
+                            <b>{{"completed"|translate}}!</b>
+                        </ion-label>
+		<button style="margin-top: 10px!important;height: 35px;float:right;margin-right:12px;" *ngIf="!hasUserRedeem && !hideScanScore && !is_game_desc && qrstatus.status" (click)="scanQRCode()" ion-button outline>{{"scan"|translate}} {{getScanNumber()}}/{{getNumberOfScan()}}
+		</button>
+		
+		  <!--ion-label style="margin-top: 17px!important;float:left;margin-left:12px;" *ngIf="checkInScreen">
+                            <b>{{checkInText}}</b>
+                        </ion-label>
+		<button style="margin-top: 10px!important;height: 35px;float:right;margin-right:12px;" *ngIf="checkInScreen" (click)="scanCheckInCode()" ion-button outline>{{"scan"|translate}} </button-->
+		
+		
+		<!--span *ngIf="topBar!='miniGame'"><ion-icon name="game-controller-b"></ion-icon>	Mini Games </span>
+		
+		</span>
+		<span class="topbar" (click)="topbargo('survey')">
+		<span *ngIf="topBar=='survey'" style="border-bottom:2px solid"><ion-icon name="create"></ion-icon>	Survey </span>
+		<span *ngIf="topBar!='survey'"><ion-icon name="create"></ion-icon> Survey</span>
+		
+		</span>
+		<span class="topbar" (click)="topbargo('poll')">
+		<span *ngIf="topBar=='poll'" style="border-bottom:2px solid"><ion-icon name="podium"></ion-icon>
+	Poll </span>
+		<span *ngIf="topBar!='poll'"><ion-icon name="podium"></ion-icon>
+	Poll</span>
+		
+		</span>
+        <!--ion-title>{{activityTitle|translate}}</ion-title-->
+        <!-- <ion-buttons end>
+            <button (click)="backToHome()" ion-button outline class='home-btn'>
+                {{"home"|translate}}
+            </button>
+        </ion-buttons> -->
+		
+		
+		
+<ion-segment padding *ngIf="notificationslide=='notification' " [(ngModel)]="notif_seg" color="segm">
+   <ion-segment-button   [style.color]="appFontColor" (ionSelect)="segmentButtonClicked('notif')"  [style.border-color]="appFontColor" value="notifi">
+      Notifications
+    </ion-segment-button>
+    <ion-segment-button (ionSelect)="segmentButtonClicked('helpdesk')" [style.color]="appFontColor"   [style.border-color]="appFontColor"  value="helpdesk">
+      Help Desk
+    </ion-segment-button>
+   
+  </ion-segment>
+    </ion-navbar>
+</ion-header>
+
+<app-content margin-top>
+ 
+    <div class="container" style="margin-top:-49px">
+	<div style="display:none">
+<canvas   #canvas  ></canvas>
+<canvas   #downcanvas  ></canvas>
+
+<img #img1 (load)="makecanvas();" [src]="frameimage">
+
+<img #img2 (load)="makecanvas();" width="10%" style="float:right" [src]="mobimg">
+</div>
+      
+	
+
+
+	  <ion-slides class="slider" [pager]="pagerOption"   paginationType="bullets" (ionSlideDidChange)="acitivityChanged()">
+            <ion-slide *ngFor="let activity of activities; let slide_index = index ">
+                <ion-scroll scrollY="true" [style.height]="scrollheight" [style.color]="appFontColor" [style.margin-top]="scrollmargin">
+		<!-- Scan Text -->
+		<!--div *ngIf="activity.is_multiurl==2 && surveyQuestions.length>1 " style="padding:10px 0px">
+<ion-segment padding  [(ngModel)]="choosesurvey" color="segm">
+   <ion-segment-button   [style.color]="appFontColor"   [style.border-color]="appFontColor"  value=" {{survey.survey.surveyId}}" *ngFor="let survey of surveyQuestions; let i = index;">
+   <span   (click)="gotoBannerInst(survey.survey.surveyId)">  {{survey.title}}
+   </span>
+    </ion-segment-button>
+    <!--ion-segment-button   [style.color]="appFontColor"  (ionSelect)=segmentchange(survey.survey.surveyId) [style.border-color]="appFontColor"  value=" {{survey.survey.surveyId}}" *ngFor="let survey of surveyQuestions; let i = index;">
+   <span id="customSegment_{{survey.survey.surveyId}}"  (click)="gotoBannerInst(survey.survey.surveyId)">  {{survey.title}}
+   </span>
+    </ion-segment-button-->
+  <!--/ion-segment>
+  </div>
+  <div *ngIf="activity.is_multiurl==3 && pollQuestions.length>1" style="padding:10px 0px">
+<ion-segment padding [(ngModel)]="choosepoll"  color="segm">
+   <ion-segment-button   [style.color]="appFontColor"   [style.border-color]="appFontColor" value=" {{poll.index}}" *ngFor="let poll of pollQuestions; let i = index;">
+   <span (click)="gotoPollInst(poll.index)">  {{poll.title}}
+   </span>
+    </ion-segment-button>
+  </ion-segment>
+  </div-->
+  <div *ngIf="activity.type=='clue_activity' && clueQuestions.length>1" style="padding:10px 0px">
+<ion-segment padding [(ngModel)]="chooseclue"  color="segm">
+   <ion-segment-button   [style.color]="appFontColor"   [style.border-color]="appFontColor" value=" {{clue.id}}" *ngFor="let clue of clueQuestions; let i = index;">
+   <span (click)="showGameActivity(clue.game_type, clue.id)">  {{clue.question}}
+   </span>
+    </ion-segment-button>
+  </ion-segment>
+  </div>
+  <div *ngIf="activity.type=='text_activity' && textQuestions.length>1" style="padding:10px 0px">
+<ion-segment padding [(ngModel)]="choosetext"  color="segm">
+   <ion-segment-button   [style.color]="appFontColor"   [style.border-color]="appFontColor" value=" {{text.id}}" *ngFor="let text of textQuestions; let i = index;">
+   <span (click)="showGameActivity(text.game_type, text.id)">  {{text.question}}
+   </span>
+    </ion-segment-button>
+  </ion-segment>
+  </div>
+		<div text-center *ngIf="activity.type=='text_activity'">
+		<h4>{{activity.heading}}</h4>
+<div *ngIf="activity.is_scanned==0">
+<div (click)="scantextactivity(activity.scan_text_activity_id)">
+<img style="width:60%;margin-top:15px;"  src="assets/images/qr-scan-img-2.png">
+</div>
+</div>
+<div *ngIf="activity.is_scanned==1">
+<img style="width:50%;margin-top:15px;" src="{{activity.banner_url}}">
+
+<h3 style="margin-top:35px;">{{activity.question}}  
+</h3>
+  <div *ngIf="activity.is_answered==0">
+  <form #transportForm="ngForm" style="text-align:center;"  >
+
+ <!--ion-list style="width:20%; clear: both;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;"-->
+	<!--ion-grid>
+	<ion-row style="margin-left:auto;margin-right:auto;">
+  <ion-col style="margin-left:auto;margin-right:auto;" col-1 *ngFor="let data of activity.activity_ans; let i=index"-->
+  <div style="margin-left:auto;margin-right:auto;"  *ngFor="let data of activity.activity_ans; let i=index"> 
+  <div *ngIf="data.space==0">
+<input  style="width:7%;font-size:21px;margin-top:20px;float:left;color:black" [style.margin-left]="data.marginleft"  id="ans_id_{{i}}" name=ans{{i}} type="text " (keyup)="onKeyChange($event,i)" [(ngModel)]="data.ans" required minlength="1"  >
+   <!--ion-input  style="width:125%;font-size:26px;"  id="ans_id_{{i}}" name=ans{{i}} type="text " (keyup)="onKeyChange($event.target.value,i)" [(ngModel)]="data.ans" required minlength="1"  ></ion-input-->
+ </div>
+ 
+   <div *ngIf="data.space==1">
+<br><br><hr>
+	
+</div>
+	 </div>  
+		<!--/ion-col>
+		</ion-row>
+		</ion-grid-->
+	<br>
+	<br>
+	<br>
+	
+<button type="submit" ion-button   outline 
+style="width:50%; margin-top:20px;margin-left:auto;margin-right:auto;    border: none;background-color: rgba(128,128,128,0.3);"
+(click)="textactivityanswer(activity.scan_text_activity_id,activity.activity_ans)" color="primary"  > 
+ Submit Answer</button>
+</form>
+   
+  </div>
+  <div *ngIf="activity.is_answered==1">
+   <ion-list>
+  <ion-item class="form-input">
+                <ion-input type="text"  value="{{activity.answer}}" disabled ></ion-input>
+            </ion-item>
+			</ion-list>
+<!--button ion-button outline style="width:50%;margin:0 auto;    border: none;background-color: rgba(128,128,128,0.3);"  color="primary"  > 
+ Already Answered</button-->
+ </div>
+
+</div>
+ </div>
+ <div text-center *ngIf="activity.type=='clue_activity'">
+ <h4>{{activity.heading}}</h4>
+ <div *ngIf="activity.is_scanned==0">
+<div (click)="scanclueactivity(activity.scan_clue_activity_id)">
+<img style="width:60%;margin-top:15px;"  src="assets/images/qr-scan-img-2.png">
+</div>
+</div>
+<div *ngIf="activity.is_scanned==1">
+<img style="width:75%" margin-top src="{{activity.banner_url}}">
+
+<h3 margin-top>{{activity.question}}</h3>
+</div>
+ </div>
+		 
+                    <!-- Banner -->
+					<div *ngIf="activity.type == 'checkin_activity'" class="scan_checkin">
+					<br><br><br><br>
+					
+					<ion-item  text-center>
+	<img style="width:26%;padding:inherit;" (click)="scanCheckInCode()" padding src="assets/images/qr-scan-img.png">
+
+	</ion-item>
+	<br>
+	{{checkInText}}
+	<br><br>
+	{{checkinMsg}}
+					</div>
+					
+					<div *ngIf="activity.type == 'profile'" style="text-align:left;margin-left:10%;line-height:26px;">
+					<br><br>
+	<img *ngIf="homescreenbanner!=null" style="width:90%;padding:0 !important;" padding [src]="homescreenbanner">
+	
+					Name : {{userName}}<br>
+					User Id : {{userId}}<br>
+					<span *ngIf="is_zone==1">
+					
+					<span *ngIf="liveuser.zone!='' && liveuser.zone!=null">
+					
+					Zone : {{liveuser.zone}}
+					<br>
+					</span>
+					<span *ngIf="liveuser.zone_color!='#000000' && liveuser.zone_color!=null">
+					
+					Color : <span [style.background-color]="liveuser.zone_color" style="width:35px;height:14px;border-radius:5px;display:inline-block"></span>
+					<br>
+					</span>
+					<span *ngIf="liveuser.seating_no!='' && liveuser.seating_no!=null">
+					
+					Seating No. : {{liveuser.seating_no}}
+					<br>
+					</span>
+					<span *ngIf="liveuser.table_no!='' && liveuser.table_no!=null">
+					Table No. : {{liveuser.table_no}}
+					<br>
+					</span>
+					
+					</span>
+					<span *ngIf="doc_require==1">
+					
+					Document Status : {{docStatus}}<br>
+					<br>
+					</span><!--
+					Mobile No :{{mobile_no}}  -->
+					
+					</div>
+					
+					<div *ngIf="activity.type == 'documentReq'">
+					<br><br><br><br>
+					Document Status :  Pending<br>
+					<br><br>
+				<ion-list class="register-form" >	
+				
+			  <ion-item class="form-input">
+                <button id="submit-button" (click)="addDocument()" ion-button outline>Upload Document</button>
+            </ion-item>
+			<div *ngIf="thx_msg!=''">
+			<br><br>
+			{{thx_msg}}
+			<br><br>
+				
+			  <ion-item class="form-input">
+                <button id="submit-button" (click)="read_thx_msg()" ion-button outline>Process Done</button>
+				
+            </ion-item>
+			</div>
+			</ion-list>
+			
+			 
+					
+					</div>
+					
+                    <div *ngIf="activity.type == 'banner'">
+			<div *ngIf="activity.fullbanner==0" style="background-color:none;height:100vh;    padding: 2vw 9vw;">
+									<h4>{{activity.title}}</h4>
+										<div *ngIf="activity.is_multiurl==5">
+				<ion-item  text-center style="background-color:rgba(255,255,255,0.01)">
+	<img style="width:26%;padding:inherit;" (click)="scanurlCode(activity.bann_id)" padding src="assets/images/qr-scan-img.png">
+
+	</ion-item>
+				</div>
+								 <div *ngIf="activity.image_url!=null">
+								 <a *ngIf="activity.image_link!=null" href="{{activity.image_link}}">
+						<img style="width:90%" src="{{activity.image_url}}" alt="{{activity.title}}'s Banner">
+						</a>
+						<img *ngIf="activity.image_link==null" style="width:90%" src="{{activity.image_url}}" alt="{{activity.title}}'s Banner">
+					</div>	
+						<div *ngIf="activity.video_url!=null && activity.image_url==null">
+					
+					<!--video width="320" height="240" controls>
+  <source src="https://vimeo.com/70481327" type="video/mp4">
+</video-->
+
+<iframe width="90%" style="margin-top:10px;" [src]='videourl(activity.video_url)' frameborder="0" allow="encrypted-media" donotallowfullscreen></iframe>
+				
+ <!--button ion-button outline style="width:50%;margin:0 auto;    border: none;background-color: rgba(128,128,128,0.3);" color="primary" (click)="embedurl(activity.video_url)">Play Full Screen</button-->
+        <div (click)="embedurl(activity.video_url)">
+		<img style="    width: 21px;
+    height: 21px;
+    position: absolute;
+    margin-left: 30%;"  src="assets/images/extend.png" alt="Enlarge">
+</div>
+				</div>
+									<div *ngIf="activity.is_multiurl==3">
+									<p style="text-align:left">	{{activity.question}}</p>
+									<div *ngIf="activity.is_voted==true">
+									<div *ngFor="let val of activity.polloptions;">
+												 
+    <ion-label><span style="float:left">{{val.optionvalue}} </span><span style="float:right">{{val.votes}}</span></ion-label>
+  
+									</div>
+									</div>
+									
+				<div *ngIf="activity.multipleselection==0 && activity.is_voted==false">
+<ion-list radio-group style="margin:-1px 0 15px;"  [(ngModel)]="pakisk"  *ngFor="let val of activity.polloptions;">
+					 
+  <ion-item  >
+    <ion-label style="color:black !important">{{val.optionvalue}}</ion-label>
+    <ion-radio value="{{val.id}}" (click)="pollradio(val)" class="radio" ></ion-radio>
+  </ion-item>
+  
+  <!--ion-item *ngIf="val.id==pakis[data.id] && val.choice=='Others'">
+ <input class="text-input" placeholder="Write here!"(focusout)="surveysingleother(val.survey_question_id,val.id,$event.target.value)" >
+	  
+  </ion-item-->
+
+</ion-list>
+
+ <button style="width:100%" id="submit-button" (click)="pollradiodata()" ion-button outline>Submit</button>
+
+</div>
+				<div *ngIf="activity.multipleselection==1 && activity.is_voted==false">
+
+<ion-list style="margin:-1px 0 15px;"  *ngFor="let val of activity.polloptions;">
+
+  <ion-item>
+    <ion-label style="color:black !important">{{val.optionvalue}}</ion-label>
+    <ion-checkbox (ionChange)="pollcheckbox(val,$event.checked)" ></ion-checkbox>
+  </ion-item>
+
+
+</ion-list>
+                <button style="width:100%" id="submit-button" (click)="polldata(activity.bann_id)" ion-button outline>Submit</button>
+
+</div>
+
+
+<div *ngIf="activity.is_voted==true">
+                 <button disabled style="width:100%" ion-button outline>Already Voted</button>
+
+</div>
+ <div *ngIf="activity.allowcomments==1 && activity.is_voted==true">
+				<br>
+				 <ion-item>
+    <textarea class="text-input" style="color:black !important" placeholder="Comments:" id="comment-{{activity.bann_id}}" (focusout)="PollInputChangeComment($event.target.value,activity.bann_id)"></textarea>
+  </ion-item>
+  <button style="width:100%" id="submit-button" (click)="submitPollComment(activity.bann_id)" ion-button outline>Submit</button>
+
+   <ion-grid>
+                                <ion-row *ngFor="let comment of activity.pollcomments; let i=index" >
+			  <ion-col col-1>
+                                         <ion-label style="margin-right:0px;float:left">&bull;</ion-label> 
+                                    </ion-col>
+                                    <ion-col col-11 text-left style="margin-top:10px;">
+					{{comment.comments}}<br>
+					
+                                    </ion-col>
+									<ion-col col-1>
+									</ion-col>
+			  <ion-col col-2>
+                                         <ion-label style="margin-top:-15px;float:left">
+<ion-icon (click)="commentrating(i,comment.id,'up')" name="thumbs-up"></ion-icon>
+{{comment.likes}}</ion-label> 
+                                    </ion-col>
+			  <ion-col col-2>
+                                         <ion-label style="margin-top:-15px;float:left"> 
+				 <ion-icon (click)="commentrating(i,comment.id,'down')" name="thumbs-down"></ion-icon>
+{{comment.dislikes}}</ion-label> 
+                                    </ion-col>
+			 <ion-col col-7>
+                                         <ion-label style="margin-top:-15px;float:right;font-size:15px;"> 
+By: {{comment.name}}</ion-label> 
+                                    </ion-col>
+									
+									
+			<div style="
+    border-right-style: solid;
+    border-right-width: 76vw;
+    height: 1px;"></div>
+			</ion-row>
+			</ion-grid>
+  
+			</div>
+</div>
+					<div *ngIf="activity.is_multiurl==1">
+
+					
+					<ion-grid>
+					<ion-row *ngFor="let urldata of activity.multiurldata">
+					 <ion-col col-5 class="col1" >
+						<a href="{{urldata.url_link}}">
+					<img src={{urldata.url_image}} style="width:100%; 
+						  height:100%;
+						  margin:auto;
+						  padding:0px;
+						  display:block;" alt="{{activity.title}}'s image">  
+					
+					</a></ion-col>
+	
+<ion-col col-7 class="col2" >
+		<a href="{{urldata.url_link}}" style="text-decoration:none;color:black">
+			
+		<span class="text" >{{urldata.url_desc}}</span>
+		
+           
+
+	</a>
+					</ion-col>
+					</ion-row>
+					</ion-grid>
+					
+					</div>
+					
+<!--Survey -->
+<div *ngIf="activity.is_multiurl==2 " style="padding:10px 0px">
+
+  <ion-grid *ngIf="activity.survey.submission==false">
+                                <ion-row *ngFor="let data of activity.survey.questions; let i=index" >
+                                    <ion-col col-1 style="margin-top:6px">
+                                         <ion-label style="margin-right:0px;float:left">{{i + 1}}.</ion-label> 
+                                    </ion-col>
+                                  
+                                   <ion-col col-11 *ngIf="data.question_type==1" text-left >
+				<p>	{{data.question}}
+				<br>
+				<span *ngIf="data.required==1" style="font-size:15px">* Required</span>
+				</p>
+					 <ion-item>
+    <ion-input (focusout)="SurveyInputChange($event.target.value, data.id)" ></ion-input>
+  </ion-item>
+  
+			<div *ngIf="data.comment==1"> <br>
+				
+				 <ion-item>
+    <ion-label floating style="color:black !important">Write Your Comment Here!</ion-label>
+    <ion-textarea  (focusout)="SurveyInputChangeComment($event.target.value, data.id)"></ion-textarea>
+  </ion-item>
+			</div>
+                                    </ion-col>
+
+                                   <ion-col col-11 *ngIf="data.question_type==2" text-left >
+  <div style="border:1px solid gray;width:100%;padding:0 10px;margin:auto">
+ 	<p>{{data.question}}
+	<br>
+				<span *ngIf="data.required==1" style="font-size:15px">* Required</span>
+				</p>
+
+
+<div (click)="stars(data.id,activity.survey.surveyId)" style="z-index:1000;position: relative; bottom:0">
+<span *ngFor="let item of fills[data.id];">
+	<img src="assets/images/starfill.png" style="width:20px;">
+</span>
+
+<span *ngFor="let item of unfills[data.id];">
+	<img src="assets/images/star.png" style="width:20px;opacity:0.8">
+</span><div *ngIf="nonfill">
+<span   *ngFor="let item of nonfills;">
+	<img src="assets/images/star.png" style="width:20px;opacity:0.8">
+</span>
+</div>
+</div>
+ </div>
+ <br>
+ <div *ngIf="data.comment==1">
+				
+				 <ion-item>
+    <ion-label floating style="color:black !important">Write Your Comment Here!</ion-label>
+    <ion-textarea  (focusout)="SurveyInputChangeComment($event.target.value, data.id)"></ion-textarea>
+  </ion-item>
+			</div>
+                                    </ion-col>	
+									<!--question_type3 --:>single select choice-->
+ <ion-col col-11 *ngIf="data.question_type==3" text-left >
+				<p>	{{data.question}}
+				<br>
+				<span *ngIf="data.required==1" style="font-size:15px">* Required</span>
+				</p>
+				
+					<ion-list radio-group style="margin:-1px 0 15px;" [(ngModel)]="pakis[data.id]" #data.id{{i}} *ngFor="let val of data.choice;">
+					 
+  <ion-item  >
+    <ion-label style="color:black !important">{{val.choice}}</ion-label>
+    <ion-radio value="{{val.id}}" class="radio" (click)="surveysingle(val.survey_question_id,val.id,val.choice)"></ion-radio>
+  </ion-item>
+  <ion-item *ngIf="val.id==pakis[data.id] && val.choice=='Others'">
+ <input class="text-input" placeholder="Write here!"(focusout)="surveysingleother(val.survey_question_id,val.id,$event.target.value)" >
+	  
+  </ion-item>
+
+</ion-list>
+
+ <div *ngIf="data.comment==1">
+				
+				 <ion-item>
+    <ion-label floating style="color:black !important">Write Your Comment Here!</ion-label>
+    <ion-textarea  (focusout)="SurveyInputChangeComment($event.target.value, data.id)"></ion-textarea>
+  </ion-item>
+			</div>			
+					
+                                    </ion-col>
+				<!--question_type4 --:>multiple select choice-->
+		
+		  <ion-col col-11 *ngIf="data.question_type==4" text-left >
+				<p>	{{data.question}}<br>
+				<span *ngIf="data.required==1" style="font-size:15px">* Required</span>
+				</p>
+				<ion-list *ngFor="let val of data.choice;">
+
+  <ion-item>
+    <ion-label style="color:black !important">{{val.choice}}</ion-label>
+    <ion-checkbox  (ionChange)="surveycheckbox(val.survey_question_id,val.id,$event.checked)"></ion-checkbox>
+  </ion-item>
+
+
+</ion-list>
+					
+ <div *ngIf="data.comment==1">
+				
+				 <ion-item>
+    <ion-label floating style="color:black !important">Write Your Comment Here!</ion-label>
+    <ion-textarea  (focusout)="SurveyInputChangeComment($event.target.value, data.id)"></ion-textarea>
+  </ion-item>
+			</div>
+                                    </ion-col>
+
+
+						<!--type5 Range selection  -->			
+ <ion-col col-11 *ngIf="data.question_type==5" text-left >
+				<p>	{{data.question}}<br>
+				<span *ngIf="data.required==1" style="font-size:15px">* Required</span>
+				</p>
+					<!--span *ngFor="let val of data.choice;">
+							
+<span>{{val.choice}}</span>
+
+
+<br>
+<br>
+  							
+					</span-->
+					<ion-list radio-group [(ngModel)]="ranges" *ngFor="let val of data.ranges;">
+  <ion-item  >
+    <ion-label style="color:black !important">{{val.rangefrom}}---{{val.rangeto}}</ion-label>
+    <ion-radio value="{{val.id}}"  (click)="surveysingle(val.survey_question_id,val.id)"></ion-radio>
+  </ion-item>
+  
+</ion-list>
+		
+ <div *ngIf="data.comment==1">
+				
+				 <ion-item>
+    <ion-label floating style="color:black !important">Write Your Comment Here!</ion-label>
+    <ion-textarea  (focusout)="SurveyInputChangeComment($event.target.value, data.id)"></ion-textarea>
+  </ion-item>
+			</div>		
+                                    </ion-col>	
+                          
+												
+                                </ion-row>
+	<ion-row *ngIf="activity.survey.questions!=''">
+		
+         <ion-col col-11 > 
+                <button style="margin-left:8.33%;width:100%" id="submit-button" (click)="onSubmitSurvey(activity.survey.surveyId)" ion-button outline>Submit</button>
+	</ion-col>   
+	</ion-row>
+			
+                            </ion-grid >
+			<ion-grid *ngIf="activity.survey.submission==true">
+			<ion-row>
+			<div style="width:25%;	margin-left: auto;	margin-right: auto;">
+			<img src="assets/images/submitted.png" >
+			</div>
+			</ion-row>
+			
+         <ion-col col-11 > 
+                <button disabled style="margin-left:8.33%;width:100%" ion-button outline>Submitted Successfully</button>
+	</ion-col>   
+			</ion-grid>
+</div>
+
+<!--Survey End -->	
+			<p style="font-size:15px;">{{activity.image_desc}}		</p>
+			</div>
+			<div *ngIf="activity.fullbanner==1" >
+                        <img src="{{activity.image_url}}" alt="{{activity.title}}'s Banner">
+						</div>
+			
+						
+                    </div>
+                    <!-- Banner End -->
+
+                    <!-- Activity -->
+					
+     <div class="acitivity-container" *ngIf="activity.type == 'activity_list'">
+	 <ion-grid *ngIf="!showActivityBanner" style="margin-top:3vw;padding:15px" >
+       
+ <ion-row *ngFor="let data of activityBannerData; let i=index;" (click)="activityPageData(data,i);">
+         <ion-icon *ngIf="data.completed==true  && chkbox==true" style="position: absolute;margin-top: 35px;margin-left: 12px;" name="checkmark-circle-outline"></ion-icon>
+         <ion-icon *ngIf="data.is_voted==true  && chkbox==true" style="position: absolute;margin-top: 35px;margin-left: 12px;" name="checkmark-circle-outline"></ion-icon>
+	<div *ngIf="data.survey && chkbox==true">
+         <ion-icon *ngIf="data.survey.submission==true" style="position: absolute;margin-top: 35px;margin-left: 12px;" name="checkmark-circle-outline"></ion-icon>
+	</div>
+<ion-card>
+			
+  <img (load)="chkbox=true" style="width: 100%;" src={{data.banner}}/>
+    
+</ion-card>	
+<!--ion-card-content  style="background-color: rgba(128,128,128,0.7);" >
+    
+</ion-card-content-->   
+        </ion-row>  
+		</ion-grid>
+	  <ion-grid *ngIf="showActivityBanner" style="margin-top:3vw;padding:15px" >
+
+ <ion-row *ngFor="let stage of sliderData.activities;"  (click)="activityPage(stage);">
+           
+		   	<ion-card *ngIf="stage.todo==false">
+  <img style="width: 100%;" src={{stage.banner}}/>
+    <!--ion-card-content  style="background-color: rgba(128,128,128,0.7);" >
+      {{stage.title}}
+</ion-card-content-->
+   <!--div class="card-subtitle" style="
+    margin-top: -33px;
+    font-size: 23px;
+    margin-left: 14px;">{{event.name}}
+</div-->     
+</ion-card>	   
+        </ion-row>
+	
+	
+ <ion-row *ngFor="let banne of activityBanners;" (click)="activityPage(banne);">
+           
+		   	<ion-card>
+  <img style="width: 100%;" src={{banne.icon}}/>
+    
+</ion-card>	   
+        </ion-row>  
+    </ion-grid>
+	
+</div>					
+     <div class="acitivity-container" *ngIf="activity.type == 'activity_lists'">
+                            <!--ion-label class="title-label" (click)="showGameActivity('notification',0)">{{"notifications"|translate}}<ion-badge *ngIf="badgecount>0" item-end style="background-color:red;float:right;">{{badgecount}}</ion-badge></ion-label-->
+			<ion-segment padding  [(ngModel)]="chooseActivity" color="segm">
+		  <ion-segment-button  *ngIf="surveyQuestions!=''" [style.color]="appFontColor"   [style.border-color]="appFontColor"  value="Survey" >
+   <span  >  Survey
+   </span>
+    </ion-segment-button >
+	
+	  <ion-segment-button  *ngIf="pollQuestions!=''" [style.color]="appFontColor"  
+	  [style.border-color]="appFontColor"  value="Poll" >
+   <span  >  Poll
+   </span>
+    </ion-segment-button >
+ 
+   <ion-segment-button *ngFor="let stage of activity.activities; let j = index"   [style.color]="appFontColor"   [style.border-color]="appFontColor" 
+   value="{{stage.title}}">
+   <span> 
+   {{stage.title}}
+    </span>
+    </ion-segment-button>
+	
+    <!--ion-segment-button   [style.color]="appFontColor"  (ionSelect)=segmentchange(survey.survey.surveyId) [style.border-color]="appFontColor"  value=" {{survey.survey.surveyId}}" *ngFor="let survey of surveyQuestions; let i = index;">
+   <span id="customSegment_{{survey.survey.surveyId}}"  (click)="gotoBannerInst(survey.survey.surveyId)">  {{survey.title}}
+   </span>
+    </ion-segment-button-->
+  </ion-segment>
+			<div style="margin-top:33px" [ngSwitch]="chooseActivity">
+			<div *ngSwitchCase="'Survey'">
+			<div *ngIf="surveyQuestions!=''">
+                            <!--ion-label (click)="gotoBanner(surveyQuestions[0].survey.surveyId)" class="title-label" >{{"survey"|translate}}</ion-label-->
+			<ion-grid ><div   *ngFor="let survey of surveyQuestions; let i = index;">
+                              <ion-row class="row-game" >
+						  <ion-col col-1>
+                                        <!-- <ion-label>{{i + 1}}.</ion-label> -->
+                                        <ion-label>•</ion-label>
+                                    </ion-col>
+                                    <ion-col col-10 style="margin-top:-7px">
+                                        <button (click)="gotoBanner(survey.survey.surveyId)" ion-button clear>{{survey.title}}</button>
+                                    </ion-col>
+                                    <ion-col col-1>
+                                        <!-- <ion-label *ngIf="game.type == null">no</ion-label> -->
+                                        <ion-label *ngIf="survey.survey.submission==true">
+                                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+											</ion-label>
+					   <ion-label *ngIf="survey.survey.submission==false">
+                                            <ion-icon name="square-outline"></ion-icon>
+											</ion-label>
+					
+                                    </ion-col>
+                     
+							</ion-row>
+							</div>
+                             </ion-grid>
+                        </div>
+						
+			</div>
+			<div *ngSwitchCase="'Poll'">
+
+						<div *ngIf="pollQuestions!=''">
+                            <!--ion-label (click)="gotoPoll(pollQuestions[0].index)" class="title-label" >{{"poll"|translate}}</ion-label-->
+							<ion-grid ><div   *ngFor="let poll of pollQuestions; let i = index;">
+                              <ion-row class="row-game" >
+						  <ion-col col-1>
+                                        <!-- <ion-label>{{i + 1}}.</ion-label> -->
+                                        <ion-label>•</ion-label>
+                                    </ion-col>
+                                    <ion-col col-10 style="margin-top:-7px">
+                                        <button (click)="gotoPoll(poll.index)" ion-button clear>{{poll.title}}</button>
+                                    </ion-col>
+                                    <ion-col col-1>
+                                        <!-- <ion-label *ngIf="game.type == null">no</ion-label> -->
+                                        <ion-label *ngIf="poll.voted==true">
+                                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+											</ion-label>
+					   <ion-label *ngIf="poll.voted==false">
+                                            <ion-icon name="square-outline"></ion-icon>
+											</ion-label>
+					
+                                    </ion-col>
+                     
+							</ion-row>
+							</div>
+                             </ion-grid>
+                        </div>
+						</div>
+                   					
+					
+		<div class="acitivity-container" *ngIf="activity.type == 'activity_list' && qrstatus.status">
+                        <div *ngFor="let stage of activity.activities; let j = index">
+			<div *ngSwitchCase="stage.title">			
+                            <!--ion-label class="title-label" (click)="showGameActivity(stage.games[0].game_type, stage.games[0].id)">{{stage.title}}</ion-label-->
+                            <ion-grid ><div   *ngFor="let game of stage.games; let i = index; let completed of stage.completed">
+                              <ion-row class="row-game" *ngIf="game.is_desc==0">
+						  <ion-col col-1>
+                                        <!-- <ion-label>{{i + 1}}.</ion-label> -->
+                                        <ion-label>•</ion-label>
+                                    </ion-col>
+                                    <ion-col col-10 style="margin-top:-7px">
+                                        <!--button (click)="showGameActivity(game.game_type, game.id)" ion-button clear>{{game.title}}</button-->
+                                        <button (click)="showGameActivity(game.game_type, game.id)" ion-button clear>{{game.title}}</button>
+                                    </ion-col>
+                                    <ion-col col-1>
+                                        <!-- <ion-label *ngIf="game.type == null">no</ion-label> -->
+                                        <ion-label *ngIf="game.isShared">
+                                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+											</ion-label>
+					<div *ngIf="!game.isShared">			
+                                        <!--ion-label *ngIf="hasScan(j * 2 + i)"-->
+                                        <ion-label *ngIf="game.completed">
+                                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                            <!-- <div title="Code: 0xe800" class="the-icons"><i class="demo-icon">&#xe800;</i>
+                                            </div> -->
+                                        </ion-label>
+                                        <!--ion-label *ngIf="!hasScan(j * 2 + i)"-->
+				<ion-label *ngIf="!game.completed">								
+                                            <ion-icon name="square-outline"></ion-icon>
+                                            <!-- <i class="fa fa-circle-o" aria-hidden="true"></i> -->
+                                        </ion-label>
+										</div>
+                                    </ion-col>
+                     
+							</ion-row>
+							</div>
+                             </ion-grid>
+                      
+			</div>
+		  </div>
+                        <!-- <div>
+                            <ion-label class="title-label">{{"enjoy_rewards"|translate}}</ion-label>
+                            <ion-grid>
+                                <ion-row class="row-game">
+                                    <ion-col col-1>
+                                        <ion-label>1.</ion-label>
+                                    </ion-col>
+                                    <ion-col col-11>
+                                        <button (click)="showScoreActivity()" ion-button clear>{{"your_score"|translate}}</button>
+                                    </ion-col>
+                                </ion-row>
+                            </ion-grid>
+                        </div> -->
+                    </div>
+					
+</div>
+                    </div>					
+                    <!--div class="acitivity-container" *ngIf="socialsharedetail.status && activity.type == 'activity_list'">
+                            <ion-label class="title-label"(click)="qrslide();">{{"social_share"|translate}}</ion-label>
+                            <ion-grid>
+                                <ion-row class="row-game">
+                                    <ion-col col-1>
+                                        <!-- <ion-label>{{i + 1}}.</ion-label> ->
+                                        <ion-label>•</ion-label>
+                                    </ion-col>
+                                    <ion-col col-10 style="margin-top:-7px">
+                                        <button ion-button (click)="qrslide();" clear>{{"social_sharing"|translate}}</button>
+                                    </ion-col>
+                                    <ion-col col-1>
+                                        <!-- <ion-label *ngIf="game.type == null">no</ion-label> - ->
+                                        <ion-label *ngIf="socialsharedetail.isShared">
+                                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+											</ion-label>
+                                        <ion-label *ngIf="!socialsharedetail.isShared">
+                                            <ion-icon name="square-outline"></ion-icon>
+                                            <!-- <i class="fa fa-circle-o" aria-hidden="true"></i> - ->
+                                        </ion-label>
+                                    </ion-col>
+                                </ion-row>
+                            </ion-grid>
+                   
+                    </div-->
+                    <!-- Activity End -->
+
+					
+		<!-- Notifications-->	
+<div *ngIf="activity.type=='notification' " style="padding:10px">
+  <div  [ngSwitch]="notif_seg">
+			    <ion-grid *ngSwitchCase="'notifi'">
+				
+                                <ion-row *ngFor="let notification of activity.messages; let i=index" >
+			  <ion-col style="padding:0;margin-top:11px;"  col-1 *ngIf="i<10 || allnotification==true" >
+                                         <ion-label style="margin-right:0px;float:left">&bull;</ion-label> 
+                                    </ion-col>
+                                    <!--ion-col  col-10 *ngIf="i<10 ||allnotification==true" text-left style="margin-top:8px;background-color:rgba(205,255,202,0.3);"-->
+                                    <ion-col style="padding:0"  col-10 *ngIf="i<10 ||allnotification==true">
+				<p  style="text-align:left;background-color:rgba(171,197,253,0.17);float:left;padding:0 7px;border-radius:5px;">
+
+					{{notification.message}}<br>
+					<span style="font-size:11px">{{notification.created_at }}</span>
+					</p>
+                                    </ion-col>
+			<ion-col style="padding:0"  col-1 *ngIf="i<10 || allnotification==true">
+			<div *ngIf="notification.participant_id!=null" >
+			<img src="assets/images/starfill.png" style="width:30px;margin-top:6px">
+			</div>
+			</ion-col>
+                                </ion-row>
+<ion-row *ngIf="allnotification==false ">		 
+ <!--button ion-button outline style="width:50%;margin:0 auto;    border: none;background-color: rgba(128,128,128,0.3);" (click)="getnotification()" color="primary"  > Load More</button-->
+
+ <button ion-button outline style="width:50%;margin:0 auto;    border: none;background-color: rgba(128,128,128,0.3);" (click)="setallnotification()" color="primary"  > Load More</button>
+
+</ion-row>	
+                            </ion-grid>
+							    <ion-grid *ngSwitchCase="'helpdesk'" >
+				<ion-row *ngFor="let notification of activity.queries; let i=index;">
+			 
+                                    <!--ion-col  col-11 *ngIf="notification.message!=null" text-right style="margin-top:8px;background-color:rgba(205,255,202,0.3)"-->
+                                    <ion-col  style="padding:0" col-11 *ngIf="(notification.message!=null && notification.message!='')" >
+				<p style="float:right;margin-top:5px;margin-bottom:0px;margin-right:10px;text-align:right;padding:0 7px;background-color:rgba(205,255,202,0.17);border-radius:5px;" >
+					{{notification.message}}<br>
+					<span style="font-size:11px">{{notification.created_at }}</span>
+					</p>
+                                    </ion-col>
+				  <ion-col style="padding:0" col-1 *ngIf="(notification.message!=null && notification.message!='')" >
+                                         <!--ion-label style="margin-right:0px;float:left">&bull;</ion-label--> 
+                                         <ion-label style="margin-right:0px;float:left"><ion-icon name="person"></ion-icon></ion-label> 
+                                    </ion-col>
+				<ion-col col-1 style="padding:0"  *ngIf="(notification.reply!=null && notification.reply!='')" >
+                                         <ion-label style="margin-right:0px;float:left">&bull;</ion-label> 
+                                    </ion-col>
+				<!--ion-col  col-11 *ngIf="notification.reply!=null" text-left style="margin-top:8px;background-color:rgba(171,197,253,0.3)"-->
+				<ion-col style="padding:0"   col-11 *ngIf="(notification.reply!=null && notification.reply!='')" >
+				<p  item-start style="margin-top:5px;margin-bottom:0px;background-color:rgba(171,197,253,0.17);text-align:left;float:left;padding:0 7px;border-radius:5px;">
+	
+					{{notification.reply	}}<br>
+					<span style="font-size:11px">{{notification.updated_at }}</span>
+					</p>
+                                    </ion-col>
+				
+                                </ion-row>
+<ion-row id="h" >		 
+ <!--button ion-button outline style="width:50%;margin:0 auto;    border: none;background-color: rgba(128,128,128,0.3);" (click)="getnotification()" color="primary"  > Load More</button-->
+ <!--button ion-button outline style="width:50%;margin:0 auto;    border: none;background-color: rgba(128,128,128,0.3);" (click)="setallnotification()" color="primary"  > Load More</button-->
+
+</ion-row>	
+                            </ion-grid>
+		</div>
+        </div>           		
+		<!-- Notifications End-->	
+<!--Survey ->
+<div *ngIf="activity.type=='survey' " style="padding:10px">
+  <ion-grid>
+                                <ion-row *ngFor="let data of activity.questions; let i=index" >
+                                    <ion-col col-1 >
+                                         <ion-label style="margin-right:0px">{{i + 1}}.</ion-label> 
+                                    </ion-col>
+                                  
+                                   <ion-col col-10 *ngIf="data.question_type==1" text-left >
+				<p>	{{data.question}}</p>
+								   
+  <ion-item class="form-input">
+                <ion-textarea  ></ion-textarea>
+            </ion-item>
+                                    </ion-col>
+
+                                   <ion-col col-10 *ngIf="data.question_type==2" text-left >
+  <div style="border:1px solid gray;width:80%;padding:10px;margin:auto">
+ 	<p style="">{{data.question}}
+</p>
+
+
+<div (click)="stars()" style="z-index:1000;position: relative;text-align:center; bottom:0">
+<span *ngFor="let item of fills;">
+	<img src="assets/images/starfill.png" style="width:20px;">
+</span>
+<span *ngFor="let item of nonfills;">
+	<img src="assets/images/star.png" style="width:20px;">
+</span>
+</div>
+ </div>
+                                    </ion-col>	
+
+                                   <ion-col col-10 *ngIf="data.question_type==3" text-left >
+				<p>	{{data.question}}</p>
+					<span *ngFor="let val of data.choice;">
+							
+     <ion-checkbox ></ion-checkbox>
+<span>{{val.choice}}</span>
+<br>
+<br>
+  							
+					</span>
+                                    </ion-col>									
+                                </ion-row>
+				
+                            </ion-grid>
+</div>
+
+<!--Survey End -->		
+                    <!-- Game Input -->
+                    <div class="game-input-container" *ngIf="activity.type == 'game_type_text_input' && qrstatus.status">
+                        <ion-grid text-wrap>
+                            <ion-row *ngFor="let field of activity.game.fields; let i = index">
+                                <ion-col col-1>
+                                    <ion-label class="no-label">{{i + 1}}</ion-label>
+                                </ion-col>
+                                <ion-col col-3>
+                                    <ion-label>{{field.name}}</ion-label>
+                                </ion-col>
+                                <ion-col col-8>
+                                    <ion-input (input)="onGameTextInput($event.target.value, activity.game.id, field.id)"></ion-input>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </div>
+                    <!-- Game Input End -->
+
+                    <!-- Game Rule -->
+                    <div class="game-rule-container" *ngIf="activity.type == 'game_type_image_rule' && qrstatus.status">
+                     <div *ngIf="activity.game_description==0" style="padding:10px">
+					 <ion-label>{{activity.game.title}}</ion-label>
+					 <div  style="text-align:left;margin-left:10%;line-height:26px;">
+					 
+					                         <span *ngIf="activity.testdriveid">Lucky Draw Id: {{activity.testdriveid}}
+											 <br></span> 
+											 <span *ngIf="drive.queue">
+					                         <span *ngIf="activity.current_queue_no!=null">Current Queue No. {{cur_que_no}}<br></span>
+					                         <span *ngIf="activity.my_queue_no">My Queue No.  {{activity.my_queue_no}}<br>
+											
+											 </span>
+								<span *ngFor="let queu of activity.queues;let i=index; " >			 
+								<span *ngIf="i>0">
+										____________________________
+										<br>
+								</span>
+											My Queue No.  {{queu.queue_no}}<br>
+											 Check In Time : {{queu.check_in_time }} <br>
+											 Check Out Time : {{queu.check_out_time }}
+											 <br>
+											 <span *ngIf="queu.check_in_time==null">
+											 Status:   {{que_status[queu.pause]}}
+											 
+	 <button id="submit-button" *ngIf="queu.pause==0 " (click)="changeQueuStatus(queu.queue_no,i)" ion-button outline>Pause</button>
+	      <button id="submit-button" *ngIf="queu.pause==1 " (click)="changeQueuStatus(queu.queue_no,i)" ion-button outline>Unpause</button>				
+		</span>
+											 
+											 
+											 
+								</span>
+											 
+					                         <span *ngIf="activity.my_queue_no">Status:   {{que_status[activity.pause]}}
+                <button id="submit-button" *ngIf="activity.pause==0" (click)="changeQueStatus(activity.my_queue_no)" ion-button outline>Pause</button>
+	      <button id="submit-button" *ngIf="activity.pause==1" (click)="changeQueStatus(activity.my_queue_no)" ion-button outline>Unpause</button>				
+											 <br><br>
+											 </span>
+											 </span>
+								 <span *ngIf="drive.slot && activity.completed">
+							<span *ngIf="slotid.length>0">
+							<span  *ngFor="let slot of slotid;let i=index;">
+						<span *ngIf="i>0">
+										____________________________
+										<br>
+								</span>
+							Slot:  {{slot.hour}}<br>
+							Vehicle : {{slot.vehicle}}<br>
+							Check In Time : {{slot.check_in_time}}<br>
+							Check Out Time : {{slot.check_out_time}}
+							
+							</span>
+							<br>
+							<span *ngIf="is_chk_out">
+							Please contact manager to rebook another slot.
+							</span>
+								</span>
+								<span *ngIf="selected_slot">Slot : {{slotid.hour}}
+								<br>
+								Vehicle :  {{slotid.vehicle}}<br>
+							Check In Time : <br>
+							Check Out Time :
+							
+								
+													<br>
+                <button id="submit-button"  (click)="bookslot()" ion-button outline>Book Slot</button>
+			
+							            <button id="submit-button"  (click)="selectedslot()" ion-button outline>Available Slots</button>
+
+							</span>			 
+                <button id="submit-button" *ngIf="activity.que_slot==1 && slotid.length==0 && !selected_slot" (click)="selectedslot()" ion-button outline>Available Slots</button>
+
+											 <br><br>
+											 <ion-list>
+        <ion-item class="form-input" hidden>
+		
+            <ion-select id="slotdiv" style="margin-left:-1000px; "   [(ngModel)]="slotid" [ngModelOptions]="{standalone: true}">
+			<span *ngFor="let key of slots" >
+			
+                <ion-option  *ngIf="key.booked" disabled [value]="key">{{key.hour}}: {{key.vehicle}} Booked</ion-option>
+                <ion-option  *ngIf="!key.booked"  [value]="key">{{key.hour}}: {{key.vehicle}}</ion-option>
+				</span>
+            </ion-select>
+        </ion-item>
+		</ion-list>
+											 
+											 
+											 
+											 </span>
+											 
+</div>
+                        <img src="{{activity.game.image_url}}" alt="{{activity.game.name}}'s Image'">
+                        <!-- <ion-label class="title">{{"game_rule"|translate}}</ion-label> -->
+                        <p>{{activity.game.rule}}</p>
+                    </div>
+<div *ngIf="activity.game_description==1" style="background-color:none;height:100vh;    padding: 2vw 9vw;">
+					<h4>{{activity.game.title}}</h4>
+					
+					<img style="width:90%" src="{{activity.game.image_url}}" alt="{{activity.game.title}}'s image">
+					
+					
+			<p style="font-size:15px;">{{activity.game.rule}}		</p>
+			</div>					
+					
+					
+					</div>
+                    <!-- Game Rule End -->
+
+                    
+
+                    <div class="score-container" *ngIf="activity.type == 'socialshare' && socialsharedetail.status">
+                        <p padding>{{activity.message}}</p>
+		<div class="img-wrap">
+
+                    <img  (click)="addPhoto()" *ngIf="myPhoto" class="img-responsive tm-user-photo" [src]="images"/>
+                    <img  (click)="addPhoto()" *ngIf="!myPhoto" class="img-responsive tm-user-photo" [src]="images"/>
+                    <!--img  (click)="addPhoto()" *ngIf="!myPhoto" class="img-responsive tm-user-photo" src="assets/images/noimg.png"/-->
+                </div>	<br>	
+				
+			<div style="position:relative;margin-top:50px;">
+<ion-fab center middle>
+
+    <button ion-fab outline><ion-icon name="md-share" role="img" class="icon icon-ios ion-md-share" aria-label="share"></ion-icon> </button>
+    <ion-fab-list side="top" >
+      <button ion-fab (click)="socialshare('fb');"><ion-icon name="logo-facebook"></ion-icon></button>
+      <button ion-fab (click)="socialshare('twe');"><ion-icon name="logo-twitter"></ion-icon></button>
+      <button ion-fab (click)="socialshare('wts');"><ion-icon name="logo-whatsapp"></ion-icon></button>
+      <button ion-fab (click)="socialshare('inst');"><ion-icon name="logo-instagram"></ion-icon></button>
+      <button ion-fab (click)="socialshare('mail');"><ion-icon name="mail"></ion-icon></button>
+    </ion-fab-list>
+  </ion-fab>	      
+</div>  <!-- <ion-label class="score">{{dynamicText}}</ion-label> -->
+                    </div>
+					  
+
+                    <div class="score-container" *ngIf="activity.type == 'photoshare' && socialsharedetail.status">
+
+<ion-fab top right edge style="top:6px;position:absolute;z-index:1;">
+					
+<!--button ion-fab mini style="background-color: rgba(128,128,128,0.3);" (click)="showRadio()" ><ion-icon name="create"></ion-icon></button-->
+<div style="float:right;width:13%;">
+<img   (click)="changeframe(defaultframe)"  [src]="defaultframe"/>
+
+<span  *ngFor="let frame of framesurl; let i=index;">
+<img *ngIf="i<3"  (click)="changeframe(frame.frame_url)"  [src]="frame.frame_url"/>
+</span>
+</div>
+</ion-fab>
+    <!--button ion-button outline style="float:right; border:0;margin-right:2%;width:10%;font-size:12px;background-color: rgba(128,128,128,0.3);" (click)="sharetoalbum()" color="primary" icon-left *ngIf="!selectedPhoto"><ion-icon name="create"></ion-icon> </button-->	
+    					<div  class="share-img-wrap" >
+
+		<img  (click)="addPhoto()"   class="img-responsive tm-user-photo" style="position:absolute;z-index:2;margin-top:4px;margin-left:-29%" [src]="images"/>
+
+</div>
+			 
+
+				
+			<div style="position:relative;" >
+    <!--button ion-button (click)="addPhoto()" color="primary" icon-left><ion-icon name="camera"></ion-icon> Take Photo</button-->
+<p style="padding:0px 5px;margin-top:3px;font-size:14px;padding-top:88vw;">{{photoalbumconfig.dyn_text}}</p>
+	 <button ion-button outline style="width:35%;margin-top:-7px;    border: none;background-color: rgba(128,128,128,0.3);" (click)="sharetoalbum()" color="primary" icon-left *ngIf="selectedPhoto"> Share To Album</button>
+	 <button ion-button outline style="width:32%;margin-top:-7px;    border: none;background-color: rgba(128,128,128,0.3);" (click)="photoSocialshare();" color="primary" icon-left *ngIf="selectedPhoto"> Social Share</button>
+	 <button ion-button outline style="width:23%;margin-top:-7px;    border: none;background-color: rgba(128,128,128,0.3);" (click)="downloadtogallery()" color="primary" icon-left *ngIf="selectedPhoto"><ion-icon name="download"></ion-icon> Save</button>
+<br>
+	<!--button ion-button  (click)="getAlbum()" color="primary" icon-left><ion-icon name="image"></ion-icon> Photo Album</button-->
+</div>  <!--  <ion-label class="score">{{dynamicText}}</ion-label> -->
+                    </div>
+                    <div class="score-container" *ngIf="activity.type == 'photoalbum' && socialsharedetail.status">
+						<div class="album-img-wrap" >
+
+<ion-grid >
+
+         <ion-row *ngIf="photoalbumconfig.app_printing_option==1 && photoalbumconfig.unlimited_print==0">
+		 <ion-col col-12>
+<p>You are allowed to print {{photoalbumconfig.no_of_print}} photos</p>
+</ion-col>
+         </ion-row>
+
+         <ion-row>
+
+<ion-col id="album-{{i}}" col-4 *ngFor="let album of photoalbum; let i=index" >
+	
+                    <img (click)="enlarge(i);" *ngIf="i<appendimages" id="img_{{i}}"  class="img-responsive tm-user-photo" src="{{album.image_url}}"/>
+
+            <ion-row *ngIf="photoalbumconfig.app_printing_option!=1" class="album-icon" id="albumbar-{{i}}" style="display:none" >
+
+   <ion-col col-4 >
+   <ion-badge style="padding:0px;background-color:rgba(0,0,0,0)">{{album.total_likes}}</ion-badge>
+   
+   <ion-icon *ngIf="!album.isLiked" ion-icon (click)="photolike(album.photo_id,i)" name="heart"></ion-icon>
+   <ion-icon *ngIf="album.isLiked" style="color:red" ion-icon name="heart"> </ion-icon>
+   </ion-col>
+   <ion-col col-4>
+    <ion-icon  name="share-alt" (click)="photoshare(album.photo_id,album.image_url,album.isShareable);"></ion-icon>
+ </ion-col>
+   <ion-col col-4>
+   <ion-icon name="download" (click)="photodownload(album.image_url,i,album.isShareable);"></ion-icon>
+   </ion-col>
+   </ion-row>
+            <ion-row *ngIf="photoalbumconfig.app_printing_option==1" class="album-icon" id="albumbar-{{i}}" style="display:none" >
+   
+   <ion-col col-3 >
+   <ion-badge style="padding:0px;background-color:rgba(0,0,0,0)">{{album.total_likes}}</ion-badge>
+   
+   <ion-icon *ngIf="!album.isLiked" ion-icon (click)="photolike(album.photo_id,i)" name="heart"></ion-icon>
+   <ion-icon *ngIf="album.isLiked" style="color:red" ion-icon name="heart"> </ion-icon>
+   </ion-col>
+   <ion-col col-3>
+    <ion-icon  name="share-alt" (click)="photoshare(album.photo_id,album.image_url,album.isShareable);"></ion-icon>
+ </ion-col>
+   <ion-col col-3>
+   <ion-icon *ngIf="!album.isShareable || !album.print_photo" name="print" (click)="photoprint(album.photo_id,i,album.isShareable);"></ion-icon>
+   <ion-icon *ngIf="album.isShareable && album.print_photo" style="color:red"  name="print" ></ion-icon>
+   
+   </ion-col>
+   <ion-col col-3>
+   <ion-icon name="download" (click)="photodownload(album.image_url,i,album.isShareable);"></ion-icon>
+   </ion-col>
+            </ion-row>
+
+   </ion-col>
+         </ion-row>     
+		 
+<ion-row>		 
+ <button ion-button outline style="width:50%;margin:0 auto;    border: none;background-color: rgba(128,128,128,0.3);" (click)="loadmoreimages()" color="primary"  > Load Images</button>
+
+</ion-row>
+</ion-grid>
+				</div>
+
+				
+</div>
+                    <div class="score-container" *ngIf="activity.type == 'redeem' && qrstatus.status && !is_Staff">
+                        <ion-label>{{"profile_id"|translate}}: {{userDrawId}}</ion-label>
+                        <ion-label text-wrap class="title">{{dynamicText}}</ion-label>
+                        <!-- <ion-label class="score">{{dynamicText}}</ion-label> -->
+                    </div>
+                    <div class="score-container" *ngIf="activity.type == 'redeem' && qrstatus.status && is_Staff">
+                        <ion-label text-wrap class="title">Staff</ion-label>
+                        <!-- <ion-label class="score">{{dynamicText}}</ion-label> -->
+                    </div>
+                    <!-- Score End -->
+                </ion-scroll>
+            </ion-slide>
+			
+        </ion-slides>
+      <!--div class="dots" *ngIf="autoplayIndex<3">
+	  
+	
+	                                         
+					 <span *ngIf="autoplayIndex==0"style="margin-right:5px;font-weight:bold;font-size:17px;">&bull;</span> 
+						 <span *ngIf="autoplayIndex!=0"style="margin-right:5px">&bull;</span> 
+
+					 <span *ngIf="autoplayIndex==1"style="margin-right:5px;font-weight:bold;font-size:17px;">&bull;</span> 
+	                                           <span *ngIf="autoplayIndex!=1"style="margin-right:5px">&bull;</span> 
+	                             
+								 <span *ngIf="autoplayIndex==2"style="margin-right:5px;font-weight:bold;font-size:17px;">&bull;</span> 
+	                                           <span *ngIf="autoplayIndex!=2"style="margin-right:5px">&bull;</span> 
+					
+	  </div>
+      <div class="dots" *ngIf="autoplayIndex>=3">
+	  
+	                                           <span style="margin-right:5px">&bull;</span> 
+	                                           <span style="margin-right:5px">&bull;</span> 
+					<span style="margin-right:5px">&bull;</span> 
+	  </div-->
+	  <div [class]="footerclass" *ngIf="restrict_activities==0">
+		
+	
+            <ion-grid style="padding-top:0;">
+                <ion-row >
+                    <ion-col *ngFor="let icons of appIcons" style="padding-top:0;" col-2 (click)="tabscreen(icons.icon_name)">
+                        <button  class="navigation-icon" ion-button clear style="margin-left:-5x;height: 1.8em">
+		            <ion-icon style="font-size: 33px;margin-top:5px;" >
+					<img style="width:33px" src="{{icons.icon}}"></ion-icon>
+		
+					
+		</button>
+		<ion-badge *ngIf="icons.icon_name=='Notifications' && badgecount>0" item-end style="background-color:red;float:right;margin-top: -33px;">{{badgecount}}</ion-badge>
+		
+		<!--span *ngIf="selectedtab!=icons.icon_name">{{icons.icon_name}}</span-->
+		<p *ngIf="selectedtab==icons.icon_name" [style.color]="appmenuFontColor" style="font-size:12px;margin-top:0;" >{{icons.icon_rename}}</p>
+
+                    </ion-col>
+            <!--        <ion-col col-2 (click)="showNotificationInst()">
+                        <button  class="navigation-icon" ion-button clear style="height: 1.8em">
+		            <ion-icon style="font-size: 33px;margin-top:5px;" >
+					<img width="72%" src="{{notificationicon}}"></ion-icon>
+
+					
+                        </button>
+						<br>
+						<span>Notifications</span>
+                    </ion-col>
+                                        <ion-col col-2 (click)="showActivitesListinst()">
+                        <button  class="navigation-icon" ion-button clear>
+		            <ion-icon style="font-size: 33px;margin-top:5px;" name="people"></ion-icon>
+                        </button><br>
+			<span>Activities</span>						
+                    </ion-col>
+                    <ion-col col-2 (click)="showProfilePage()">
+                        <button  class="navigation-icon" ion-button clear>
+		            <ion-icon style="font-size: 33px;margin-top:5px;" name="person"></ion-icon>
+			</button><br>
+			<span>Profile</span>
+                    </ion-col>
+                    <ion-col col-2 *ngIf="pollQuestions!=''" (click)="gotoPollInst(pollQuestions[0].index)">
+                        <button  class="navigation-icon" ion-button clear>
+		            <ion-icon style="font-size: 33px;margin-top:5px;" name="stats"></ion-icon>
+			</button><br>
+			<span>Poll</span>
+                    </ion-col>
+                    <ion-col col-2 *ngIf="surveyQuestions!=''" (click)="gotoBannerInst(surveyQuestions[0].survey.surveyId)" >
+                        <button class="navigation-icon" ion-button clear>
+		            <ion-icon style="font-size: 33px;margin-top:5px;" name="create"></ion-icon>
+			</button><br>
+			<span>Survey</span>
+                    </ion-col>
+                    <ion-col col-2 *ngIf="socialsharedetail.status" (click)="qrslideInst()"  >
+                        <button class="navigation-icon" ion-button clear>
+		            <ion-icon style="font-size: 33px;margin-top:5px;" name="camera"></ion-icon>
+			</button><br>
+			<span>SocialShare</span>
+                    </ion-col>
+		-->
+                </ion-row>
+            </ion-grid>
+
+        </div>
+		 <div class="footers">
+            <ion-grid>
+			<ion-row *ngIf="showquerymsg">
+			<ion-toolbar>
+    
+	<ion-item class="form-input">
+                <ion-input   [(ngModel)]="queryMessage"></ion-input>
+            </ion-item>
+
+    <ion-buttons end>
+      <button (click)="queryMsg()" ion-button icon-end color="royal">
+        Send
+        <ion-icon name="send"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar> 
+			</ion-row>
+                <ion-row>
+                    <ion-col col-3>
+                    </ion-col>
+
+                    <ion-col col-6>
+<!--img *ngIf="current_type == 'photoshare' && socialsharedetail.status" (click)="addPhoto()" style="height: 60px;" src="assets/images/Camera-button.png"-->					
+                        <!--button *ngIf="!hasUserRedeem && !hideScanScore && !is_game_desc && qrstatus.status" (click)="scanQRCode()" ion-button outline>{{"scan"|translate}} {{getScanNumber()}}/{{getNumberOfScan()}} </button-->
+                        <!--ion-label *ngIf="hasUserRedeem">
+                            <b>Redeemed</b>
+                        </ion-label>
+                        <ion-label *ngIf="!hasUserRedeem && showCompleted">
+                            <b>{{"completed"|translate}}!</b>
+                        </ion-label-->
+			
+		<button small *ngIf="current_type=='socialshare' && socialsharedetail.status && socialbutton" ion-button (click)="remotesocial()"  color="primary" >Join Us On Facebook</button>
+
+                        <button *ngIf="!hasUserRedeem && current_type=='redeem' && qrstatus.status && !is_Staff" (click)="redeem()" ion-button outline>{{"redeem"|translate}} </button>
+                        <button *ngIf="!hasUserRedeem && current_type=='score' && qrstatus.status && !is_Staff" (click)="redeem()" ion-button outline>{{"redeem"|translate}} </button>
+                       <!--button *ngIf="current_type == 'photoshare' && socialsharedetail.status && showalbum" (click)="showalbum=!showalbum" ion-button color="primary">Back</button-->
+					</ion-col>
+
+                    <ion-col col-3>
+                       
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </div>
+  </div>
+
+</app-content>
