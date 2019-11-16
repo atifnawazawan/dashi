@@ -963,11 +963,14 @@ By: {{comment.name}}</ion-label>
                     <div class="game-rule-container" *ngIf="activity.type == 'game_type_image_rule' && qrstatus.status">
                      <div *ngIf="activity.game_description==0" style="padding:10px">
 					 <ion-label>{{activity.game.title}}</ion-label>
+
 					 <div  style="text-align:left;margin-left:10%;line-height:26px;">
 					 
 					                         <span *ngIf="activity.testdriveid">Lucky Draw Id: {{activity.testdriveid}}
 											 <br></span> 
 											 <span *ngIf="drive.queue">
+   <button ion-button outline style="float:right;margin-top:-21px" (click)="refreshque(activity.game.id)">      <ion-icon name="refresh"></ion-icon> </button>
+											 
 					                         <span *ngIf="activity.current_queue_no!=null">Current Queue No. {{cur_que_no}}<br></span>
 					                         <span *ngIf="activity.my_queue_no">My Queue No.  {{activity.my_queue_no}}<br>
 											
@@ -998,7 +1001,10 @@ By: {{comment.name}}</ion-label>
 											 <br><br>
 											 </span>
 											 </span>
+											 <br>
 								 <span *ngIf="drive.slot && activity.completed">
+					    <button ion-button outline style="float:right;margin-top:-21px" (click)="refreshslot()">      <ion-icon name="refresh"></ion-icon> </button>
+								 
 							<span *ngIf="slotid.length>0">
 							<span  *ngFor="let slot of slotid;let i=index;">
 						<span *ngIf="i>0">

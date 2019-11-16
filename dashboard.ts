@@ -1879,6 +1879,68 @@ let data={banner_id:id,sec_code:code};
 	 
    }
    
+   refreshque(id){ 
+   let currentIndex = this.slides.getActiveIndex();
+        let activity = this.activities[currentIndex];
+        if (activity != undefined) {
+            let loading = this.loadingCtrl.create({
+                content: 'Processing. Please wait...'
+            });
+            loading.present();
+			let data1={
+				game_id:id
+			}
+			this.profileService.refreshqueues(data1).then((data: any) => {
+				console.log(data);
+				if (data.success) {
+				activity.queues=data.queues;
+				this.toastShow(data.message);
+			}
+			else{
+				this.toastShow(data.message);
+				}
+				loading.dismiss();
+			})
+			.catch(error => {
+				this.toastShow('Please try again!');
+				loading.dismiss();
+			});	  
+	}
+	else{
+		this.toastShow('Please try again later!');
+	}
+   }
+   refreshslot(){
+	 let currentIndex = this.slides.getActiveIndex();
+        let activity = this.activities[currentIndex];
+        if (activity != undefined) {
+            let loading = this.loadingCtrl.create({
+                content: 'Processing. Please wait...'
+            });
+            loading.present();
+			
+			this.profileService.refreshslots().then((data: any) => {
+				console.log(data);
+				if (data.success) {
+				this.slotid=data.slotrecord;		
+				this.toastShow(data.message);
+			}
+			else{
+				this.toastShow(data.message);
+				}
+				loading.dismiss();
+			})
+			.catch(error => {
+				this.toastShow('Please try again!');
+				loading.dismiss();
+			});	  
+	}
+	else{
+		this.toastShow('Please try again later!');
+	}
+	   
+   }
+   
     scanQRCode() {
 		//$2y$10$4ZMSfzb9fsM98LjqdAwWt.EKDOH9aQtmQ6yORa9LsjqiY6wwjhC.u
 		//$2y$10$KoWlrWqkeSFpg2GOeKFjDu6/lq5Tn8qibyjwA0gUIJ3SS4SrxExrq
